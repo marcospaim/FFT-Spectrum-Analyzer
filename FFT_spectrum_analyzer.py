@@ -10,10 +10,13 @@ import scipy.fftpack
 import ntpath
 
 def sine_wave(frame, f, fs, phase, ncyl):
-    f=float(f.replace(",",".").replace("\n",""))
-    fs=float(fs.replace(",",".").replace("\n",""))
-    phase=float(phase.replace(",",".").replace("\n",""))
-    ncyl=float(ncyl.replace(",",".").replace("\n",""))
+    f = float(f.replace(",",".").replace("\n",""))
+    fs = float(fs.replace(",",".").replace("\n",""))
+    if (len(phase) == 0):
+        phase = 0
+    else:
+        phase = float(phase.replace(",",".").replace("\n",""))
+    ncyl = float(ncyl.replace(",",".").replace("\n",""))
     t = np.arange(0, ncyl*1/f, 1/fs)
     s = np.sin(2*np.pi*f*t+phase)
     # Write sine function to string
@@ -28,8 +31,8 @@ def select_file(frame):
             title='Open a file',
             initialdir='/',)
     samplerate, data = wavfile.read(filename)
-    if(data.ndim > 1): #If file is stereo take only the first channel
-        data=data[:,0]
+    if (data.ndim > 1): #If file is stereo take only the first channel
+        data = data[:,0]
     fft_fun(frame, data, samplerate,ntpath.basename(filename))
 
 def fft_fun(frame, data, samplerate, name):
@@ -40,7 +43,7 @@ def fft_fun(frame, data, samplerate, name):
     t = [i*ts for i in range(len(data))] # time array for audio in time domain
     freq = scipy.fftpack.fftfreq(data.size, ts) # frequency array for frequency domain plot
     freq = freq[:len(freq)//2] # Takes one side of the frequency domain as well
-    # Plot with matlibplot
+    # Plot with matlibplot:
     fig = plt.Figure(figsize=(5,4), dpi = 100)
     ax1 = fig.add_subplot(211)
     ax1.plot(t,data)
@@ -104,7 +107,12 @@ def main():
     labelncyl.pack(sid=tk.LEFT, anchor = 'e')
     textncyl = tk.Text(frame2, height=1, width = 10)
     textncyl.pack(sid=tk.LEFT, anchor = 'e')
-    open_button = tk.Button(frame2,text='Calculate FFT', font=16,command=lambda: sine_wave(frame, textf.get('1.0', 'end-1c'), textfs.get('1.0', 'end-1c'), textphase.get('1.0', 'end-1c'), textncyl.get('1.0', 'end-1c')))
+    open_button = tk.Button(frame2,text='Calculate FFT', font=16, 
+            command=lambda: sine_wave(
+                    frame, textf.get('1.0', 'end-1c'), 
+                    textfs.get('1.0', 'end-1c'), 
+                    textphase.get('1.0', 'end-1c'), 
+                    textncyl.get('1.0', 'end-1c')))
     open_button.pack(side=tk.RIGHT, anchor='w', expand=True)
 
     frame = tk.Frame(root)
@@ -113,6 +121,7 @@ def main():
     button.pack(side=tk.BOTTOM)
 
     root.mainloop()
+
 
 if __name__ == '__main__':
     main()
